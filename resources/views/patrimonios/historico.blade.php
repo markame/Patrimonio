@@ -1,0 +1,1 @@
+<section class="cartao bloco-formulario"><h2>Histórico do item</h2>@forelse($patrimonio->historicos as $historico)<div class="linha-historico"><strong>{{ $historico->titulo }}</strong><small>{{ $historico->created_at->format('d/m/Y \à\s H:i') }}</small><p>{{ $historico->descricao }}</p></div>@empty<p class="text-secondary">Nenhuma movimentação registrada.</p>@endforelse</section>

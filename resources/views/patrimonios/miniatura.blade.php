@@ -1,0 +1,1 @@
+@if($patrimonio->foto)<img class="miniatura" src="{{ asset('storage/'.$patrimonio->foto) }}" alt="{{ $patrimonio->nome }}">@else<span class="miniatura">@include('componentes.icone',['nome'=>$patrimonio->categoria === 'Informática' ? 'monitor' : 'caixa'])</span>@endif
