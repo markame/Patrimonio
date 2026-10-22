@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Convite;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -11,7 +12,7 @@ class UsuarioController extends Controller
 {
     public function index(): View
     {
-        return view('usuarios.indice', ['usuarios' => User::latest('id')->paginate(15)]);
+        return view('usuarios.indice', ['usuarios' => User::latest('id')->paginate(15), 'convites' => Convite::latest('id')->take(20)->get()]);
     }
 
     public function create(): View

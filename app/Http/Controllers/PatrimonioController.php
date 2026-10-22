@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PatrimonioController extends Controller
 {
@@ -156,5 +157,17 @@ class PatrimonioController extends Controller
         $qrcode = (new SvgWriter)->write(new QrCode(data: $endereco, size: 250, margin: 12))->getDataUri();
 
         return view('patrimonios.etiqueta', compact('patrimonio', 'qrcode', 'endereco'));
+    }
+
+    public function foto(string $arquivo): BinaryFileResponse
+    {
+        $disco = Storage::disk('public');
+        $caminho = 'patrimonios/'.$arquivo;
+        abort_unless($disco->exists($caminho), 404);
+
+        return response()->file($disco->path($caminho), [
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'public, max-age=86400',
+        ]);
     }
 }

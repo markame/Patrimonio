@@ -32,6 +32,9 @@ class PatrimonioTest extends TestCase
         $item = Patrimonio::firstOrFail();
         $this->assertSame('PAT-000001', $item->numero);
         Storage::disk('public')->assertExists($item->foto);
+        $this->get('/storage/'.$item->foto)->assertOk()->assertHeader('Content-Type', 'image/jpeg');
+        $this->get('/storage/patrimonios/inexistente.jpg')->assertNotFound();
+        $this->get('/storage/patrimonios/arquivo.php')->assertForbidden();
         $this->assertSame(1, $item->historicos()->count());
         $this->get('/')->assertOk()->assertSee('Projetor');
         $this->get('/patrimonios')->assertOk()->assertSee('PAT-000001');
