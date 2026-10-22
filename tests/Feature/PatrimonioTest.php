@@ -44,13 +44,34 @@ class PatrimonioTest extends TestCase
     {
         $item = $this->cadastrar();
         auth()->logout();
-        $this->get('/p/'.$item->codigo_publico)->assertOk()->assertDontSee('Anotação interna reservada');
+        $this->get('/p/'.$item->codigo_publico)->assertOk()->assertSee('Identificação do visitante')->assertDontSee('Projetor')->assertDontSee('SERIE-123');
+        $this->post('/p/'.$item->codigo_publico.'/identificacao', ['solicitante' => 'Nome reservado', 'contato' => 'contato@privado.test'])->assertSessionHasNoErrors()->assertRedirect('/p/'.$item->codigo_publico);
+        $this->get('/p/'.$item->codigo_publico)->assertOk()->assertSee('Projetor')->assertDontSee('Anotação interna reservada');
         $this->post('/p/'.$item->codigo_publico.'/chamados', [
-            'tipo' => 'Mau funcionamento', 'titulo' => 'Equipamento não liga', 'descricao' => 'Ao pressionar o botão, não acontece nada.', 'solicitante' => 'Nome reservado', 'contato' => 'contato@privado.test', 'prioridade' => 'Urgente', 'situacao' => 'Concluído',
+            'tipo' => 'Mau funcionamento', 'titulo' => 'Equipamento não liga', 'descricao' => 'Ao pressionar o botão, não acontece nada.', 'solicitante' => 'Nome adulterado', 'contato' => 'adulterado@privado.test', 'prioridade' => 'Urgente', 'situacao' => 'Concluído',
         ])->assertSessionHasNoErrors()->assertSessionHas('sucesso');
-        $this->assertDatabaseHas('chamados', ['protocolo' => 'OS-000001', 'situacao' => 'Aberto', 'prioridade' => 'Normal']);
+        $this->assertDatabaseHas('chamados', ['protocolo' => 'OS-000001', 'situacao' => 'Aberto', 'prioridade' => 'Normal', 'solicitante' => 'Nome reservado', 'contato' => 'contato@privado.test']);
+        $this->post('/p/'.$item->codigo_publico.'/encerrar-identificacao')->assertRedirect('/p/'.$item->codigo_publico)->assertSessionMissing('identificacao_visitante');
+        $this->post('/p/'.$item->codigo_publico.'/identificacao', ['solicitante' => 'Outro visitante', 'contato' => '11999999999'])->assertSessionHasNoErrors();
         $this->get('/p/'.$item->codigo_publico)->assertOk()->assertSee('OS-000001')->assertDontSee('Nome reservado')->assertDontSee('contato@privado.test');
         $this->get('/chamados/1')->assertRedirect('/entrar');
+    }
+
+    public function test_identificacao_e_obrigatoria_sem_exigir_conta(): void
+    {
+        $item = $this->cadastrar();
+        auth()->logout();
+        $this->post('/p/'.$item->codigo_publico.'/chamados', [
+            'tipo' => 'Reparo', 'titulo' => 'Falha de energia', 'descricao' => 'Equipamento não está ligando.', 'solicitante' => 'Nome informado', 'contato' => '11999999999',
+        ])->assertRedirect('/p/'.$item->codigo_publico)->assertSessionHasErrors('identificacao');
+        $this->assertDatabaseCount('chamados', 0);
+        $this->post('/p/'.$item->codigo_publico.'/identificacao', [])->assertSessionHasErrors(['solicitante', 'contato']);
+        $this->post('/p/'.$item->codigo_publico.'/identificacao', ['solicitante' => 'Visitante da escola', 'contato' => '11999999999'])->assertSessionHasNoErrors();
+        $this->assertGuest();
+        $this->assertDatabaseCount('users', 1);
+        $this->get('/p/'.$item->codigo_publico)->assertOk()->assertSee('Projetor');
+        $this->post('/p/'.$item->codigo_publico.'/encerrar-identificacao')->assertRedirect('/p/'.$item->codigo_publico);
+        $this->get('/p/'.$item->codigo_publico)->assertOk()->assertSee('Identificação do visitante')->assertDontSee('SERIE-123');
     }
 
     public function test_conclusao_exige_solucao_e_registra_historico(): void

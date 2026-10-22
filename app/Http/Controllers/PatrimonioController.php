@@ -6,6 +6,7 @@ use App\Models\Chamado;
 use App\Models\Patrimonio;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\SvgWriter;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -116,11 +117,37 @@ class PatrimonioController extends Controller
         return view('patrimonios.detalhe', compact('patrimonio'));
     }
 
-    public function publico(string $codigo)
+    public function publico(Request $requisicao, string $codigo)
     {
-        $patrimonio = Patrimonio::where('codigo_publico', $codigo)->with('historicos')->firstOrFail();
+        $patrimonio = Patrimonio::where('codigo_publico', $codigo)->firstOrFail();
+        if (! $requisicao->session()->has('identificacao_visitante')) {
+            return view('patrimonios.identificacao', ['codigo' => $codigo]);
+        }
+
+        $patrimonio->load('historicos');
 
         return view('patrimonios.publico', compact('patrimonio'));
+    }
+
+    public function identificar(Request $requisicao, string $codigo): RedirectResponse
+    {
+        Patrimonio::where('codigo_publico', $codigo)->firstOrFail();
+        $identificacao = $requisicao->validate([
+            'solicitante' => 'required|string|min:3|max:100',
+            'contato' => 'required|string|min:5|max:150',
+        ]);
+        $requisicao->session()->regenerate();
+        $requisicao->session()->put('identificacao_visitante', $identificacao);
+
+        return redirect()->route('patrimonios.publico', $codigo);
+    }
+
+    public function encerrarIdentificacao(Request $requisicao, string $codigo): RedirectResponse
+    {
+        Patrimonio::where('codigo_publico', $codigo)->firstOrFail();
+        $requisicao->session()->forget('identificacao_visitante');
+
+        return redirect()->route('patrimonios.publico', $codigo);
     }
 
     public function etiqueta(Patrimonio $patrimonio)

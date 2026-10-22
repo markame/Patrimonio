@@ -22,11 +22,17 @@ class ChamadoController extends Controller
     public function store(Request $requisicao, string $codigo)
     {
         $patrimonio = Patrimonio::where('codigo_publico', $codigo)->firstOrFail();
+        $identificacao = $requisicao->session()->get('identificacao_visitante');
+        if (! $identificacao) {
+            return redirect()->route('patrimonios.publico', $codigo)
+                ->withErrors(['identificacao' => 'Identifique-se antes de registrar um chamado.'])
+                ->withInput($requisicao->only('tipo', 'titulo', 'descricao'));
+        }
         $dados = $requisicao->validate([
             'tipo' => 'required|in:Reparo,Mau funcionamento,Informação de reparo',
             'titulo' => 'required|string|max:150', 'descricao' => 'required|string|min:10|max:3000',
-            'solicitante' => 'required|string|max:100', 'contato' => 'nullable|string|max:150',
         ]);
+        $dados = [...$dados, 'solicitante' => $identificacao['solicitante'], 'contato' => $identificacao['contato']];
         $chamado = DB::transaction(function () use ($dados, $patrimonio) {
             $chamado = $patrimonio->chamados()->create([...$dados, 'protocolo' => 'TEMP-'.Str::uuid(), 'prioridade' => 'Normal', 'situacao' => 'Aberto']);
             $chamado->update(['protocolo' => 'OS-'.str_pad((string) $chamado->id, 6, '0', STR_PAD_LEFT)]);

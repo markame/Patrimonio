@@ -10,8 +10,8 @@ Sistema responsivo de gestão patrimonial escolar em **Laravel 13, PHP 8.3+, Boo
 - Número patrimonial sequencial e único (`PAT-000001`), sem reutilização. A geração usa a chave do banco em uma transação, evitando duplicações em cadastros simultâneos.
 - Pesquisa por nome, número, série e localização; filtro por situação e paginação.
 - Etiqueta individual de **80 × 45 mm**, com número e QR Code gerado localmente em SVG. Imprimir em papel adesivo, escala 100%, sem cabeçalhos e rodapés.
-- Página pública com identificador UUID para consulta da ficha e histórico, acessível pelo QR Code sem login.
-- Relatos de reparo, mau funcionamento ou informação de reparo. Cada envio gera um protocolo (`OS-000001`). Limite de cinco envios por minuto por origem.
+- Página pública com identificador UUID para consulta da ficha e histórico pelo QR Code. Não exige conta, mas solicita nome completo e e-mail ou telefone antes de liberar a consulta. A identificação é mantida na sessão e pode ser encerrada pelo botão Trocar identificação.
+- Relatos de reparo, mau funcionamento ou informação de reparo usam o nome e o contato da identificação da sessão, sem permitir alterá-los pelo envio do formulário. Cada envio gera um protocolo (`OS-000001`). Limite de cinco envios por minuto por origem.
 - Atendimento administrativo com prioridade, situação e solução obrigatória para concluir. Conclusões e reaberturas são registradas no histórico.
 - Contatos dos solicitantes, observações internas e notas de atendimento ficam restritos à administração. O histórico público apresenta movimentações e situações dos chamados.
 

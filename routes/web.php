@@ -11,6 +11,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/entrar', [AutenticacaoController::class, 'entrar'])->middleware('throttle:5,1')->name('entrar');
 });
 Route::get('/p/{codigo}', [PatrimonioController::class, 'publico'])->name('patrimonios.publico');
+Route::post('/p/{codigo}/identificacao', [PatrimonioController::class, 'identificar'])->middleware('throttle:10,1')->name('patrimonios.identificar');
+Route::post('/p/{codigo}/encerrar-identificacao', [PatrimonioController::class, 'encerrarIdentificacao'])->name('patrimonios.encerrar-identificacao');
 Route::post('/p/{codigo}/chamados', [ChamadoController::class, 'store'])->middleware('throttle:5,1')->name('chamados.store');
 Route::middleware('auth')->group(function () {
     Route::get('/', [PatrimonioController::class, 'painel'])->name('painel');
