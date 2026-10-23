@@ -75,7 +75,7 @@ O QR Code é um link padrão: leitores de QR Code das câmeras compatíveis abre
 
 Fotos opcionais em JPEG, PNG ou WebP, até 5 MB. Configure também `upload_max_filesize=6M` e `post_max_size=8M` no PHP que atende o site. O script `iniciar.ps1` já aplica esses limites ao servidor local. No Windows, a criação de `public/storage` pode precisar de terminal elevado ou Modo de Desenvolvedor. Confira se o vínculo existe após `storage:link`.
 
-A etiqueta usa medidas físicas CSS. Confira uma impressão de teste antes de colar. Para folhas A4 com várias etiquetas pré-cortadas, será necessário adaptar o layout ao modelo específico de papel; esta versão imprime uma etiqueta por página.
+A etiqueta usa medidas físicas CSS. Confira uma impressão de teste antes de colar. Na lista de patrimônios, Baixar etiquetas A4 gera um PDF com todos os itens em ordem numérica, da esquerda para a direita e de cima para baixo. São 10 etiquetas de 90 × 48 mm por página, duas colunas e cinco linhas, com margens de 10 mm. Imprima em escala 100%. Para folhas pré-cortadas, confira a compatibilidade das medidas com o papel usado. A geração usa dompdf/dompdf; ao publicar, atualize composer.json, composer.lock e as dependências da pasta vendor ou execute composer install --no-dev no servidor.
 
 ## Testes
 
