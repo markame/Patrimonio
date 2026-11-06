@@ -5,6 +5,7 @@ use App\Http\Controllers\ChamadoController;
 use App\Http\Controllers\ConviteController;
 use App\Http\Controllers\EtiquetaController;
 use App\Http\Controllers\PatrimonioController;
+use App\Http\Controllers\RelatorioPatrimonialController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::post('/p/{codigo}/chamados', [ChamadoController::class, 'store'])->middle
 Route::middleware('auth')->group(function () {
     Route::get('/', [PatrimonioController::class, 'painel'])->name('painel');
     Route::get('/patrimonios/etiquetas-a4.pdf', [EtiquetaController::class, 'baixar'])->name('patrimonios.etiquetas-pdf');
+    Route::get('/patrimonios/relatorio.pdf', [RelatorioPatrimonialController::class, 'baixar'])->name('patrimonios.relatorio-pdf');
     Route::post('/sair', [AutenticacaoController::class, 'sair'])->name('sair');
     Route::resource('usuarios', UsuarioController::class)->only(['index', 'create', 'store'])->middleware('can:gerenciar-usuarios');
     Route::post('/convites', [ConviteController::class, 'store'])->middleware('can:gerenciar-usuarios')->name('convites.store');
